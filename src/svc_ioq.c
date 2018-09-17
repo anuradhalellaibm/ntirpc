@@ -406,6 +406,8 @@ static void
 svc_ioq_write_callback(struct work_pool_entry *wpe)
 {
 	struct xdr_ioq *xioq = opr_containerof(wpe, struct xdr_ioq, ioq_wpe);
+	SVCXPRT *xprt = (SVCXPRT *)xioq->xdrs[0].x_lib[1];
+	struct poolq_head *ifph = &xprt->sendq;
 
 	svc_ioq_write(xioq->xdrs[0].x_lib[1]);
 }
@@ -415,6 +417,7 @@ svc_ioq_write_now(SVCXPRT *xprt, struct xdr_ioq *xioq)
 {
 	struct rpc_dplx_rec *rec = REC_XPRT(xprt);
 	bool was_empty;
+	struct poolq_head *ifph = &xprt->sendq;
 
 	SVC_REF(xprt, SVC_REF_FLAG_NONE);
 
@@ -451,7 +454,7 @@ svc_ioq_write_submit(SVCXPRT *xprt, struct xdr_ioq *xioq)
 {
 	struct rpc_dplx_rec *rec = REC_XPRT(xprt);
 	bool was_empty;
-
+	struct poolq_head *ifph = &xprt->sendq;
 	SVC_REF(xprt, SVC_REF_FLAG_NONE);
 
 #ifdef USE_LTTNG_NTIRPC

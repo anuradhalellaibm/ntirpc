@@ -280,6 +280,8 @@ struct svc_xprt {
 		struct in6_pktinfo in6;
 #endif
 	} xp_pktinfo;
+
+	struct poolq_head sendq;
 };
 
 /* Service record used by exported search routines */
