@@ -656,9 +656,11 @@ gd_free:
 
 	if (rc != AUTH_OK) {
 		/* On success, the ref gets returned to the caller */
+	    if (gd_hashed && (gc->gc_proc != RPCSEC_GSS_DATA)) {
 		unref_svc_rpc_gss_data(gd);
 		req->rq_auth = NULL;
-	}
+	    }
+        }
 
 cred_free:
 	xdr_free((xdrproc_t) xdr_rpc_gss_cred, gc);	
