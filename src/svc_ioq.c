@@ -326,7 +326,16 @@ void svc_ioq_write(SVCXPRT *xprt)
 	have = TAILQ_FIRST(&rec->writeq.qh);
 	mutex_unlock(&rec->writeq.qmutex);
 
-	while (have != NULL) {
+	/* ifph is part of xprt, so make sure you don't access
+	 * ifph after releasing xprt! ifph can be removed as the
+	 * function parameter as well.
+	 *
+	 * For now REF xprt for ifph access and UNREF at the return
+	 * of this function.
+	 */
+	SVC_REF(xprt, SVC_REF_FLAG_NONE);
+
+        while (have != NULL) {
 		int rc = 0;
 
 		xioq = _IOQ(have);
@@ -402,6 +411,9 @@ void svc_ioq_write(SVCXPRT *xprt)
 			XDR_DESTROY(xioq->xdrs);
 		}
 	}
+
+	mutex_unlock(&ifph->qmutex);
+	SVC_RELEASE(xprt, SVC_RELEASE_FLAG_NONE);
 }
 
 static void
